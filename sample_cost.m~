@@ -1,0 +1,17 @@
+%%%sample a random trajectory
+
+rebuild_K;
+
+U = -1 + 2.*rand(m,p);
+while(norm(vec(U))<=0.01)
+        U = -1 + 2.*rand(m,p);
+end
+U=r*U/norm(vec(U));  %uniformly distributed random sample from the r-norm shell;
+
+w = wa+(wb-wa)*rand(n*(N+1),1);
+v = va+(vb-va)*rand(p*(N),1);
+
+x = inv(eye(size(P12,1))-P12*Kiterate*C_b)*(P11*w+P12*Kiterate*v);
+u = Kiterate*C_b*inv(eye(size(P12,1))-P12*Kiterate*C_b)*P11*w + Kiterate*inv(eye(size(C_b,1))-C_b*P12*Kiterate)*v;
+
+cost_sample = x'*M_b*x + u'*R_b*u;
