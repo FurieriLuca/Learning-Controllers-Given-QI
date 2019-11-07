@@ -137,7 +137,7 @@ for(precisions = 1:size(epsilons,2))
 end
 
 figure(1)
-loglog(epsilons,Taverages,'-s')
+loglog(flip(epsilons),Taverages,'-s')
 grid on
 %fprintf('DONE!\n')
 %final_cost=eval_cost(parameters)
