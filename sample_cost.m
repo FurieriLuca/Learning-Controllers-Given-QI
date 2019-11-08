@@ -7,7 +7,8 @@ end
 U=r*U/norm(vec(U));  %uniformly distributed random sample from the r-norm shell;
 
 
-parameters = parameters + U;
+parameters_perturbed = parameters + U;
+
 
 rebuild_K;
 

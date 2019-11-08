@@ -28,9 +28,9 @@ fprintf('Starting the learning...from a cost of %d\n',eval_cost(parameters_initi
 
 
 
-rounds_max = 10;  %%we take the average of steps needed to achieve accuracy eps over rounds_max runs
+rounds_max = 15;  %%we take the average of steps needed to achieve accuracy eps over rounds_max runs
 
-epsilons = round(logspace(log10(0.5),log10(2),10),1) %% creates a logarithmic space of precisions
+epsilons = round(logspace(log10(0.5),log10(10),12),1) %% creates a logarithmic space of precisions
 for(i = 1:size(epsilons,2))
     epsilons(i) = 1/epsilons(i);
 end
@@ -46,7 +46,7 @@ countoutside = 0; %% counter for runs where the iterates exit G0
 for(precisions = 1:size(epsilons,2))
     
     eps = epsilons(precisions);  %chooses the precision
-    fprintf('\n\n\n***NEW PRECISION*** :%d\n',eps)
+    fprintf('\n\n\n***NEW PRECISION*** : %d\n',eps)
     
     eta = 1*0.000050*eps^2; %115% %% stepsize (goes with eps^2)
     r = 0.050*sqrt(eps);   %% smoothing radius (goes with sqrt(eps) )
@@ -66,30 +66,31 @@ for(precisions = 1:size(epsilons,2))
     mean = 0;
     variance = 0; %%%to be implented
     Taverage = 0;
+    i=1;
     for(rounds = 1:rounds_max)
         fprintf('\n\nStarting round %d of precision %d\n',rounds,eps)
         while(i<=T)
-            
-            
-            grad_estimate = zeros(cardinality,1);
-            for(samples = 1:samples_number)
-                sample_cost; %%we sample the noisy cost to get cost_sample and U
-                expected_cost_evaluated = eval_cost(parameters);                             
-                grad_estimate = grad_estimate+cost_sample*U;  %gradient estimate
-                
-                real_expected_cost  =  real_expected_cost + expected_cost_evaluated; %this keeps track of the real costs for monitoring purposes
-            end
-            grad_estimate = grad_estimate*cardinality/r^2/samples_number; %correctly scaled gradient estimate
-            
+            expected_cost_evaluated = eval_cost(parameters);
             mean = mean + (expected_cost_evaluated-last_iterates_running(1))/running_window;  %%Keeps track of the last running_window steps and its mean value. To be used as a stopping criterion
             last_iterates_running = circshift(last_iterates_running,-1);
             last_iterates_running(end) = expected_cost_evaluated;
+            real_expected_cost  =  real_expected_cost + expected_cost_evaluated; %this keeps track of the real costs for monitoring purposes
             
             
+            %SAMPLING
+            grad_estimate = zeros(cardinality,1);
+            for(samples = 1:samples_number)
+                sample_cost; %%we sample the noisy cost to get cost_sample and U
+                grad_estimate = grad_estimate+cost_sample*U;  %gradient estimate                
+            end
+            grad_estimate = grad_estimate*cardinality/r^2/samples_number; %correctly scaled gradient estimate
+            
+          
+            %%STEP
+            parameters = parameters-eta*grad_estimate; 
             
             
-            parameters = parameters-eta*grad_estimate;  %%STEP
-            
+            %%CHECKS
             if(isnan(parameters)~=[0;0;0])  %%if diverges... restart the round
                 countnans = countnans+1;
                 fprintf('!!!!NAN!!! reset the round\n')
@@ -111,7 +112,7 @@ for(precisions = 1:size(epsilons,2))
             end
             
             
-            
+            %%MONITORING
             if(mod(i,window)==0) %%%print the progress every window-th step
                 real_expected_cost =  real_expected_cost/window/samples_number;
                 real_expected_cost
@@ -134,11 +135,21 @@ for(precisions = 1:size(epsilons,2))
         parameters = parameters_initial;
     end
     Taverages(precisions) = Taverage/rounds_max %% average steps needed over rounds_max runs
+    Taverage = 0;
 end
 
 figure(1)
-loglog(flip(epsilons),Taverages,'-s')
+scatter(epsilons,Taverages,50,'bo','Linewidth',2)
+set(gca, 'xscale', 'log', 'yscale', 'log');
+xlim([0.1 2]) ;
+ylim([0.5*Taverages(1) 2*Taverages(end)]) ;
+Coeffs = polyfit(log(epsilons),log(Taverages),1);
+hold on
 grid on
+loglog(epsilons, exp(polyval(Coeffs, log(epsilons))),'LineStyle','--','LineWidth',1);
+
+
+
 %fprintf('DONE!\n')
 %final_cost=eval_cost(parameters)
 %initial_cost=eval_cost(parameters_initial)
