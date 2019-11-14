@@ -1,17 +1,20 @@
 
 %%Linear system definition
 %A=[1.6 0 0 0 0;0.5 1.6 0 0 0;2.5 2.5 -1.4 0 0;-2 1 -2 0.1 0;0 2 0 -0.5 1.1];
-A =  [-3 1;2 4];
+A =  [1 0 -10;-1 1 0;0 0 1];
+
 
 n=size(A,1);
-B=[1;-2];
-C=eye(2);
+B = [1;0;1];
+
+C = [1 -1 0];
+
 
 m=size(B,2);
 p=size(C,1);
 
-N=2; 
-mu0=[0;0];
+N=3; 
+mu0=[0;0;0];
 
 x0a=-0.01;
 x0b=0.01;
@@ -51,9 +54,9 @@ mu_w=[mu0;zeros(N*n,1)];
 
 
 %%Cost function parameters
-M=100*eye(n);
-R=100*eye(m);
-M_b=blkdiag(eye(n),kron(eye(N),M));
+M=30*eye(p);
+R=30*eye(m);
+M_b=kron(eye(N),M);
 R_b=kron(eye(N),R);
 
 
@@ -66,8 +69,8 @@ R_b=kron(eye(N),R);
 %struct_small=tril(struct_small);
 %struct=kron(struct_small,S); %%%% this struct is \textbf{S} in the paper. QI can be verified by checking that the structure of struct*C_b*P12*struct is included in struct itself.
 
-struct=[1 0 0 0;1 0 0 1]
-
+struct = tril(ones(m*N,p*N));
+%struct(end,:) = zeros(1,p*N); %because it does not make sense to have an input at the last time step, since it does not influence the last output.
 %struct=zeros(m*N,p*N);
 %struct(1,1)=1;
 

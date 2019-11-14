@@ -18,9 +18,9 @@ w_small = wa+(wb-wa)*rand(n*(N),1);
 w=[x0;w_small];
 v = va+(vb-va)*rand(p*(N),1);
 
-x = inv(eye(size(P12,1))-P12*Kiterate*C_b)*(P11*w+P12*Kiterate*v);
+y = C_b*inv(eye(size(P12,1))-P12*Kiterate*C_b)*P11*w+inv(eye(size(C_b,1))-C_b*P12*Kiterate)*v;
 u = Kiterate*C_b*inv(eye(size(P12,1))-P12*Kiterate*C_b)*P11*w + Kiterate*inv(eye(size(C_b,1))-C_b*P12*Kiterate)*v;
 
-cost_sample = x'*M_b*x + u'*R_b*u;
+cost_sample = y'*M_b*y + u'*R_b*u;
 
 
