@@ -20,8 +20,8 @@ zlim([-5 5]);
 
 
 %ORACLE SETUP
-create_system_2;  %%creates the dynamical system,
-create_cost;    %%sets up the symbolic cost. Not used later
+create_system_2;  %% creates the dynamical system,
+create_cost;      %% sets up the symbolic cost. Not used later
 eval_cost = matlabFunction(cost,'Vars',{vec_K}); %%
 
 
@@ -60,9 +60,10 @@ for(precisions = size(epsilons,2):size(epsilons,2))
     etas = [4*0.000050;0.00005]
     rs = [0.050;0.005]
     
-    eta = etas(2); %115% %% stepsize (goes with eps^2)
+    eta = etas(2)*10; %115% %% stepsize (goes with eps^2)
     r = 0.050;   %% smoothing radius (goes with sqrt(eps) )
     T = 100/eta;  %%high number of maximum steps
+    %T = 10/eta;  %%high number of maximum steps
     samples_number = 1;  %%mini-batch size
     
     %% eta2=4*0.000115, eta1.5= . , eta1=0.000115, eta0.5=0.000115/2
@@ -81,8 +82,10 @@ for(precisions = size(epsilons,2):size(epsilons,2))
     i=1;
     for(rounds = 1:rounds_max)
         fprintf('\n\nStarting round %d of precision %d\n',rounds,eps)
+        costItr = [];
         while(i<=T)
             expected_cost_evaluated = eval_cost(parameters);
+            costItr = [costItr;expected_cost_evaluated];
             avg = avg + (expected_cost_evaluated-last_iterates_running(1))/running_window;  %%Keeps track of the last running_window steps and its mean value. To be used as a stopping criterion
             last_iterates_running = circshift(last_iterates_running,-1);
             last_iterates_running(end) = expected_cost_evaluated;
@@ -95,7 +98,9 @@ for(precisions = size(epsilons,2):size(epsilons,2))
                 sample_cost; %%we sample the noisy cost to get cost_sample and U
                 grad_estimate = grad_estimate+cost_sample*U;  %gradient estimate
             end
-            grad_estimate = grad_estimate*cardinality/r^2/samples_number; %correctly scaled gradient estimate
+            %grad_estimate = grad_estimate*cardinality/r^2/samples_number; %correctly scaled gradient estimate
+            
+            grad_estimate = grad_estimate*cardinality/r/samples_number; % not r^2, should be r. By Yang, 
             
             
             %%STEP
@@ -144,6 +149,7 @@ for(precisions = size(epsilons,2):size(epsilons,2))
             %}
             i = i+1;
         end
+        figure;plot(costItr);   % plot how the cost value decreases
         i = 1;
         avg = 0;
         last_iterates_running = zeros(1,running_window);
