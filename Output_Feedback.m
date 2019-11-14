@@ -57,8 +57,8 @@ countoutside = 0; %% counter for runs where the iterates exit G0
 
 
 epsilons = logspace(log10(1),log10(0.01),7) %% space of precisions
-eta_dividers=[1000;200;50;25;15;10;5];   %%empirically found for good convergence at every considered precision
-r_dividers=[1;1;1;1;1.05;1.05;1.1];   %%empirically found for good convergence at every considered precisions
+eta_dividers=[1000;200;50;25;10;10;10];   %%empirically found for good convergence at every considered precision
+r_dividers=[1;1;1;1;1;1.2;1.2];   %%empirically found for good convergence at every considered precisions
 for(precisions = 1:size(epsilons,2))
         
         eps = epsilons(precisions);  %chooses the precision
@@ -72,7 +72,7 @@ for(precisions = 1:size(epsilons,2))
         
         
         
-        window = 1000;  %% to monitor the progress in long runs, we will print the average of the real cost over the past "window" iterates
+        window = floor(1/eta);  %% to monitor the progress in long runs, we will print the average of the real cost over the past "window" iterates
         running_window = window;
         
         last_iterates_running = 1000000000*ones(1,running_window);
@@ -150,20 +150,24 @@ for(precisions = 1:size(epsilons,2))
         Taverage = 0;
 end
 
-openfig('figures/T_fixed_AND_firststop')
+figure(1)
+scatter(epsilons,Taverages,50,'bo','Linewidth',2)
+set(gca, 'xscale', 'log', 'yscale', 'log');
+xlim([0.01 1]) ;figure(1)
+scatter(epsilons,Taverages,50,'bo','Linewidth',2)
+set(gca, 'xscale', 'log', 'yscale', 'log');
+xlim([0.01 1]) ;
+ylim([0.5*Taverages(1) 2*Taverages(end)]) ;
+Coeffs = polyfit(log(epsilons),log(Taverages),2);
 hold on
 grid on
-plot(epsilons,Taverages,'ro--','linewidth',2,'markersize',10,'markerfacecolor','m')
-%scatter(epsilons,Ts,50,'bo','Linewidth',2)
-set(gca, 'xscale', 'log', 'yscale', 'log');
-xlim([0.01 1]);
-ylim([200 3*10^6]) ;
+loglog(epsilons, exp(polyval(Coeffs, log(epsilons))),'LineStyle','--','LineWidth',1);
 
-
-
-%Coeffs = polyfit(log(epsilons),log(Taverages),1);
-
-%loglog(epsilons, exp(polyval(Coeffs, log(epsilons))),'LineStyle','--','LineWidth',1);
+ylim([0.5*Taverages(1) 2*Taverages(end)]) ;
+Coeffs = polyfit(log(epsilons),log(Taverages),2);
+hold on
+grid on
+loglog(epsilons, exp(polyval(Coeffs, log(epsilons))),'LineStyle','--','LineWidth',1);
 
 
 
