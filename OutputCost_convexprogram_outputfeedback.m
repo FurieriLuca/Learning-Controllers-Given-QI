@@ -16,9 +16,9 @@
 clear all;
 clc;
 
-OutputCost_create_system_outputfeedback;
+OutputCost_create_system_distributed
 
-Q=sdpvar(m*N,p*N,'full');
+Q=sdpvar(m*N,p*(N+1),'full');
 Q=Q.*struct;
 
 
