@@ -53,8 +53,8 @@ mu_w=[mu0;zeros(N*n,1)];
 
 
 %%Cost function parameters
-M=1*eye(p);
-R=1*eye(m);
+M=0.25*eye(p);
+R=0.25*eye(m);
 M_b=kron(eye(N+1),M);
 R_b=kron(eye(N),R);
 
