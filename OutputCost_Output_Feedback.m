@@ -49,7 +49,7 @@ parameters_success = zeros(cardinality,rounds_max,size(epsilons,2));
 countnans = 0;  %%counter for divergent runs
 countoutside = 0; %% counter for runs where the iterates exit G0
 
-T_averages = zeros(size(epsilons,2),1);
+Taverages = zeros(1,size(epsilons,2));
 
 eta_dividers=0.2*[1;1;1;1;1;1;1];   %%empirically found for good convergence at every considered precision
 r_dividers=1*[1;1;1;1;1;1;1];
