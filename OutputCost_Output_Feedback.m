@@ -37,7 +37,7 @@ pause(3)
 
 
 
-rounds_max = 20;  %%we take the average of steps needed to achieve accuracy eps over rounds_max runs
+rounds_max = 1;  %%we take the average of steps needed to achieve accuracy eps over rounds_max runs
 epsilons = logspace(log10(0.2),log10(0.02),7) %% space of precisions
 
 
@@ -73,6 +73,7 @@ last_iterates_running = 1000000000*ones(1,running_window);
 
 %Taverage = 0;
 i=1;
+costItr = [];
 for(rounds = 1:rounds_max)
     count_success=1;
     fprintf('\n\nStarting round %d of precision %d\n',rounds,eps)
@@ -80,6 +81,7 @@ for(rounds = 1:rounds_max)
         
         %MONITORING OF PROGRESS OF REAL COST FUNCTION
         expected_cost_evaluated = eval_cost(parameters);
+        costItr = [costItr;expected_cost_evaluated];
         last_iterates_running = circshift(last_iterates_running,-1);
         last_iterates_running(end) = expected_cost_evaluated;
         
@@ -177,6 +179,20 @@ for(i=1:size(epsilons,2))
     Ts(i) = floor((4/eta*log(120*(eval_cost(parameters_initial)-optimal_cost)/epsilons(i)))*1.8080)
 end
 plot(epsilons,Ts,'ro-','linewidth',2,'linestyle','--','markersize',15,'markerfacecolor','r')
+
+figure(2)
+plot(costItr,'-k','linewidth',1.5);
+hold on
+grid on
+plot(linspace(1,size(costItr,1)),optimal_cost*ones(100,1),'--r','linewidth',2)
+plot(linspace(1,size(costItr,1)),(optimal_cost+epsilons(1))*ones(100,1),':g','linewidth',1.5)
+plot(linspace(1,size(costItr,1)),(optimal_cost+epsilons(2))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
+plot(linspace(1,size(costItr,1)),(optimal_cost+epsilons(3))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
+plot(linspace(1,size(costItr,1)),(optimal_cost+epsilons(4))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
+plot(linspace(1,size(costItr,1)),(optimal_cost+epsilons(5))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
+plot(linspace(1,size(costItr,1)),(optimal_cost+epsilons(6))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
+plot(linspace(1,size(costItr,1)),(optimal_cost+epsilons(7))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
+
 
 
 %grid on
