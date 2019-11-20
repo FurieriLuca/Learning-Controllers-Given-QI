@@ -37,7 +37,7 @@ pause(3)
 
 
 
-rounds_max = 10;  %%we take the average of steps needed to achieve accuracy eps over rounds_max runs
+rounds_max = 20;  %%we take the average of steps needed to achieve accuracy eps over rounds_max runs
 epsilons = logspace(log10(0.2),log10(0.02),7) %% space of precisions
 
 
@@ -149,7 +149,7 @@ for(rounds = 1:rounds_max)
     Taverages = Taverages + Tsuccess;
     parameters = parameters_initial;
 end
-Taverages = Taverage/rounds_max %% average steps needed over rounds_max runs
+Taverages = Taverages/rounds_max %% average steps needed over rounds_max runs
 %Taverage = 0;
 %end
 
@@ -158,16 +158,31 @@ figure(1)
 hold on
 grid on
 %plot(epsilons,Ts,'ro--','linewidth',2,'markersize',10,'markerfacecolor','m')
-scatter(epsilons,Taverages,50,'bo','Linewidth',2)
+
+plot(epsilons,Taverages,'bo-','linewidth',2,'linestyle','--','markersize',15,'markerfacecolor','b')
 set(gca, 'xscale', 'log', 'yscale', 'log');
-xlim([0.01 1]);
-ylim([100 3*10^6]) ;
+xlim([0.02 0.2]);
+ylim([65000 11057335]) ;
 
 
 
-Coeffs = polyfit(log(epsilons),log(Taverages),1);
+%Coeffs = polyfit(log(epsilons),log(Taverages),1);
 
-loglog(epsilons, exp(polyval(Coeffs, log(epsilons))),'LineStyle','--','LineWidth',1);
+%loglog(epsilons, exp(polyval(Coeffs, log(epsilons))),'LineStyle','-','LineWidth',1);
+
+
+Ts = zeros(1,size(epsilons,2));
+for(i=1:size(epsilons,2))
+    eta = epsilons(i)^2*0.0125
+    Ts(i) = floor((4/eta*log(120*(eval_cost(parameters_initial)-optimal_cost)/epsilons(i)))*1.8080)
+end
+plot(epsilons,Ts,'ro-','linewidth',2,'linestyle','--','markersize',15,'markerfacecolor','r')
+
+
+%grid on
+%scatter(epsilons,Ts,50,'bo','Linewidth',2)
+%set(gca, 'xscale', 'log', 'yscale', 'log');
+
 
 
 

@@ -155,8 +155,8 @@ end
 
 Ts = zeros(1,size(epsilons,2));
 for(i=1:size(epsilons,2))
-    eta = epsilons(i)^2/eta_dividers(i) 
-    Ts(i) = floor((4/eta*log(120*(eval_cost(parameters_initial)-optimal_cost)/epsilons(i)))*367)
+    eta = epsilons(i)^2*0.0125
+    Ts(i) = floor((4/eta*log(120*(eval_cost(parameters_initial)-optimal_cost)/epsilons(i)))*1.8080)
 end
 
 
