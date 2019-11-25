@@ -1,6 +1,6 @@
 
 %%Linear system definition
-%A=[1.6 0 0 0 0;0.5 1.6 0 0 0;2.5 2.5 -1.4 0 0;-2 1 -2 0.1 0;0 2 0 -0.5 1.1];
+
 A =  [1 0 -10;-1 1 0;0 0 1];
 
 
@@ -60,18 +60,11 @@ R_b=kron(eye(N),R);
 
 
 
-%%Information structure definition
-%S = [0 0 0 0 0;0 1 0 0 0;0 1 0 0 0;0 1 0 0 0;0 1 0 0 1];
-%S=[1 0;1 1];
-%S=1;
-%struct_small=ones(N,N);
-%struct_small=tril(struct_small);
-%struct=kron(struct_small,S); %%%% this struct is \textbf{S} in the paper. QI can be verified by checking that the structure of struct*C_b*P12*struct is included in struct itself.
+%INFO STRUCTURE
 
 struct = kron(tril(ones(N,(N+1))),[1 0 0]);
-%struct(end,:) = zeros(1,p*N); %because it does not make sense to have an input at the last time step, since it does not influence the last output.
-%struct=zeros(m*N,p*N);
-%struct(1,1)=1;
+%struct=[0 0 0 0 0 0 0 0 0;1 0 0 0 0 0 0 0 0];
+
 
 cardinality=sum(sum(struct));
 K=sym('K',[m*(N),p*(N+1)]);

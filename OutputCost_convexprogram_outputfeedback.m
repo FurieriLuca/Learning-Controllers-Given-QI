@@ -1,22 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % DESCRIPTION :
-%       Numerical example of Section III.B attached to the paper: 
-%       
-%       "First Order Methods For Globally Optimal Distributed Controllers Beyond Quadratic Invariance"
-%        by Luca Furieri (furieril@control.ethz.ch) and Maryam Kamgarpour
-%        (mkamgar@control.ee.ethz.ch)
-
-% This file validates the result of "QI_descent.m" by solving the
-% corresponding convex program in the Youla parameter.
+%       Solves the problem in Q.
 %%%%%%%%%%%%%%%%%%
 
 
-
-clear all;
-clc;
-
-OutputCost_create_system_distributed
 
 Q=sdpvar(m*N,p*(N+1),'full');
 Q=Q.*struct;

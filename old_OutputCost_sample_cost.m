@@ -1,4 +1,4 @@
-%%%sample a random trajectory
+%%%samples a random trajectory
 
 U = -1 + 2.*rand(cardinality,1);
 while(norm(vec(U))<=0.01)
@@ -10,7 +10,12 @@ U=r*U/norm(vec(U));  %uniformly distributed random sample from the r-norm shell;
 parameters_perturbed = parameters + U;
 
 
-rebuild_K;
+Kiterate=zeros(m*N,p*(N+1));
+for(internal_i=1:cardinality)
+        coord_x=positions(internal_i,1);
+        coord_y=positions(internal_i,2);
+        Kiterate(coord_x,coord_y)=parameters_perturbed(internal_i);
+end
 
 
 x0 = x0a+(x0b-x0a)*rand(n,1);
