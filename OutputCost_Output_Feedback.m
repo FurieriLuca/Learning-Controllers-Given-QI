@@ -34,7 +34,7 @@ pause(3)
 
 
 
-rounds_max = 5;  %%we take the average of steps needed to achieve accuracy eps over rounds_max runs
+rounds_max = 10;  %%we take the average of steps needed to achieve accuracy eps over rounds_max runs
 epsilons = logspace(log10(0.2),log10(0.02),7) %% vector of logarithimically separated precisions
 
 
@@ -59,11 +59,12 @@ last_iterates_running = 1000000000*ones(1,running_window); %start from high valu
 i=1;  %initiate iteration
 
 %%% SET THIS TO 1 IF YOU WANT TO PLOT COST; MAKES CODE MUCH SLOWER
-plotting_cost = 0; 
+plotting_cost = 1;
 %%%
 
 if(plotting_cost == 1)
     costItr = [];  %% will store the costs over time
+    costRounds = zeros(1000000,rounds_max);
 end
 for(rounds = 1:rounds_max)
     count_success = 1; %%counts reaching a new precision level. Will go up to size(epsilons).
@@ -129,6 +130,11 @@ for(rounds = 1:rounds_max)
     end
     i = 1;
     
+    %%
+    if(plotting_cost==1)
+        costRounds([1:size(costItr,1)],rounds) = costItr;
+    end
+    
     last_iterates_running = 1000000000*ones(1,running_window);       % Reset running window
     Taverages = Taverages + Tsuccess; %%compute average steps over different rounds
     parameters = parameters_initial; %% resets parameters
@@ -136,7 +142,36 @@ end
 Taverages = Taverages/rounds_max %% Compute actual average after finishing all rounds
 
 
-%%PLOTS
+
+
+%%PLOTS %%%First we handle the data for the plotting
+final_steps = zeros(rounds_max,1);
+iterate=1;
+found = 0;
+if(plotting_cost == 1)
+    for(rounds=1:rounds_max)
+        while(found == 0)
+            if(costRounds(iterate,rounds) == 0)
+                found = 1;
+                final_steps(rounds) = iterate;
+            end
+            iterate = iterate + 1;
+        end
+        found = 0;
+        iterate = 1;
+    end
+end
+
+%%find max
+maxes = zeros(rounds_max,1);
+for(i=1:max(final_steps))
+    maxes(i) = max(costRounds(i,:));
+end
+
+%find min
+for(i=1:min(final_steps))
+    mins(i) = min(costRounds(i,:));
+end
 %%First, we plot in log-log scale how many steps it took to reach each
 %%precision level
 
@@ -158,25 +193,35 @@ for(i=1:size(epsilons,2))
 end
 plot(epsilons,Ts,'ro-','linewidth',2,'linestyle','--','markersize',15,'markerfacecolor','r')
 
+extended_y = [mins([1:min(final_steps)-1])';optimal_cost+0.019*ones(max(final_steps)-min(final_steps),1)];
+extended_y = extended_y - 0.001*ones(size(extended_y,1),1);
+
 
 %%On a second figure, we plot the iterates for one run.
 if(plotting_cost == 1)
-    
     figure(2)
-    plot(costItr,'-k','linewidth',1.5);
+    plot(maxes([1:max(final_steps)-1]),'-k','linewidth',1.5);
     hold on
     grid on
-    plot(linspace(1,size(costItr,1)),optimal_cost*ones(100,1),'--r','linewidth',2)
-    plot(linspace(1,size(costItr,1)),(optimal_cost+epsilons(1))*ones(100,1),':g','linewidth',1.5)
-    plot(linspace(1,size(costItr,1)),(optimal_cost+epsilons(2))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
-    plot(linspace(1,size(costItr,1)),(optimal_cost+epsilons(3))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
-    plot(linspace(1,size(costItr,1)),(optimal_cost+epsilons(4))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
-    plot(linspace(1,size(costItr,1)),(optimal_cost+epsilons(5))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
-    plot(linspace(1,size(costItr,1)),(optimal_cost+epsilons(6))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
-    plot(linspace(1,size(costItr,1)),(optimal_cost+epsilons(7))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
+    plot(mins([1:min(final_steps)-1]),'-k','linewidth',1.5);
+    plot(linspace(1,max(final_steps)),optimal_cost*ones(100,1),'--r','linewidth',2)
+    plot(linspace(1,max(final_steps)),(optimal_cost+epsilons(1))*ones(100,1),':g','linewidth',1.5)
+    plot(linspace(1,max(final_steps)),(optimal_cost+epsilons(2))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
+    plot(linspace(1,max(final_steps)),(optimal_cost+epsilons(3))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
+    plot(linspace(1,max(final_steps)),(optimal_cost+epsilons(4))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
+    plot(linspace(1,max(final_steps)),(optimal_cost+epsilons(5))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
+    plot(linspace(1,max(final_steps)),(optimal_cost+epsilons(6))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
+    plot(linspace(1,max(final_steps)),(optimal_cost+epsilons(7))*ones(100,1),':g','linewidth',1.5,'HandleVisibility','off')
+    axis([0 max(final_steps) optimal_cost-0.001 eval_cost(parameters_initial)+0.001])
+    
+%     
+   % x = [[1:max(final_steps)-1]';[1:max(final_steps)-1]'];
+   % y = [extended_y;maxes([1:max(final_steps)-1])];
+   % fill(x,y,'g')
+    
 end
 
-
+save('DATA')
 %grid on
 %scatter(epsilons,Ts,50,'bo','Linewidth',2)
 %set(gca, 'xscale', 'log', 'yscale', 'log');
