@@ -1,24 +1,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
 % DESCRIPTION :
-%       Numerical example of Section III.B attached to the paper: 
-%       
-%       "First Order Methods For Globally Optimal Distributed Controllers Beyond Quadratic Invariance"
-%        by Luca Furieri (furieril@control.ethz.ch) and Maryam Kamgarpour
-%        (mkamgar@control.ee.ethz.ch)
-
-% This file validates the result of "QI_descent.m" by solving the
-% corresponding convex program in the Youla parameter.
+%       Solves the problem in Q.
 %%%%%%%%%%%%%%%%%%
 
 
 
-clear all;
-clc;
-
-OutputCost_create_system_outputfeedback;
-
-Q=sdpvar(m*N,p*N,'full');
+Q=sdpvar(m*N,p*(N+1),'full');
 Q=Q.*struct;
 
 
@@ -33,7 +21,7 @@ x0_u_cost=R_b^0.5*Q*C_b*P11*mu_w;
 
 cost=trace(w_y_cost'*w_y_cost)+trace(w_u_cost'*w_u_cost)+trace(v_y_cost'*v_y_cost)+trace(v_u_cost'*v_u_cost)+x0_y_cost'*x0_y_cost+x0_u_cost'*x0_u_cost;
 
-ops=sdpsettings('solver','mosek'); %also works with quadprog
+ops=sdpsettings('solver','sedumi'); %also works with quadprog
 sol=optimize([], cost, ops) 
 
 optimal_value=value(cost)
